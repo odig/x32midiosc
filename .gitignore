@@ -1,0 +1,5 @@
+*~
+*.pdf
+*.o
+x32midiosc
+x32midiosc.dSYM/
