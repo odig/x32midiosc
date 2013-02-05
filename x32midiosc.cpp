@@ -1706,7 +1706,7 @@ int main(int argc, char *argv[])
 			catch ( RtError &error ) 
 			{
 				error.printMessage();
-				goto cleanup;
+                exit( EXIT_FAILURE );
 			}
 			printf("\t\t Input Port %-3d: '%s'\n",i,portName.c_str());
 		}
@@ -1733,14 +1733,13 @@ int main(int argc, char *argv[])
 			}
 			catch (RtError &error) {
 				error.printMessage();
-				goto cleanup;
+                exit( EXIT_FAILURE );
 			}
 			printf("\t\tOutput Port %-3d: '%s'\n",i,portName.c_str());
 		}
 		std::cout << '\n';
 
 		// Clean up
-cleanup:
 		delete midiin;
 		delete midiout;
 
@@ -1829,7 +1828,7 @@ cleanup:
 				catch ( RtError &error ) 
 				{
 					error.printMessage();
-					goto cleanup;
+                    exit( EXIT_FAILURE );
 				}
 				midiInfo[i].midiout->openPort((i*2)+1,s);
 			}

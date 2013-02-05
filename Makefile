@@ -8,7 +8,7 @@ vpath %.o $(OBJECT_PATH)
 OBJECTS	 = RtMidi.o
 
 CC       = g++
-DEFS     = -D__MACOSX_CORE__
+DEFS     = -D__MACOSX_CORE__ -DOS_IS_MACOSX=1 
 CFLAGS   = -O0 -Wall -g -GGDB
 CFLAGS  += -I$(INCLUDE) -I$(INCLUDE)/include
 LIBRARY  = -framework CoreMIDI -framework CoreFoundation -framework CoreAudio
