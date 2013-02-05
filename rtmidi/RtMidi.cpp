@@ -1561,7 +1561,7 @@ void MidiInAlsa :: openPort( unsigned int portNumber, const std::string portName
   connected_ = true;
 }
 
-void MidiInAlsa :: openVirtualPort( std::string portName )
+void MidiInAlsa :: openVirtualPort( std::string portName, uint32_t uniqueId )
 {
   AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
   if ( data->vport < 0 ) {
@@ -1811,7 +1811,7 @@ void MidiOutAlsa :: closePort( void )
   }
 }
 
-void MidiOutAlsa :: openVirtualPort( std::string portName )
+void MidiOutAlsa :: openVirtualPort( std::string portName, uint32_t uniqueId )
 {
   AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
   if ( data->vport < 0 ) {
@@ -2103,7 +2103,7 @@ void MidiInWinMM :: openPort( unsigned int portNumber, const std::string /*portN
   connected_ = true;
 }
 
-void MidiInWinMM :: openVirtualPort( std::string portName )
+void MidiInWinMM :: openVirtualPort( std::string portName, uint32_t uniqueId )
 {
   // This function cannot be implemented for the Windows MM MIDI API.
   errorString_ = "MidiInWinMM::openVirtualPort: cannot be implemented in Windows MM MIDI API!";
@@ -2285,7 +2285,7 @@ void MidiOutWinMM :: closePort( void )
   }
 }
 
-void MidiOutWinMM :: openVirtualPort( std::string portName )
+void MidiOutWinMM :: openVirtualPort( std::string portName, uint32_t uniqueId )
 {
   // This function cannot be implemented for the Windows MM MIDI API.
   errorString_ = "MidiOutWinMM::openVirtualPort: cannot be implemented in Windows MM MIDI API!";
@@ -3201,7 +3201,7 @@ void MidiInWinKS :: openPort( unsigned int portNumber, const std::string portNam
   connected_ = true;
 }
 
-void MidiInWinKS :: openVirtualPort( const std::string portName )
+void MidiInWinKS :: openVirtualPort( const std::string portName, uint32_t uniqueId )
 {
   // This function cannot be implemented for the Windows KS MIDI API.
   errorString_ = "MidiInWinKS::openVirtualPort: cannot be implemented in Windows KS MIDI API!";
@@ -3307,7 +3307,7 @@ void MidiOutWinKS :: openPort( unsigned int portNumber, const std::string portNa
   connected_ = true;
 }
 
-void MidiOutWinKS :: openVirtualPort( const std::string portName )
+void MidiOutWinKS :: openVirtualPort( const std::string portName, uint32_t uniqueId )
 {
   // This function cannot be implemented for the Windows KS MIDI API.
   errorString_ = "MidiOutWinKS::openVirtualPort: cannot be implemented in Windows KS MIDI API!";
@@ -3530,7 +3530,7 @@ void MidiInJack :: openPort( unsigned int portNumber, const std::string portName
   jack_connect( data->client, name.c_str(), jack_port_name( data->port ) );
 }
 
-void MidiInJack :: openVirtualPort( const std::string portName )
+void MidiInJack :: openVirtualPort( const std::string portName, uint32_t uniqueId )
 {
   JackMidiData *data = static_cast<JackMidiData *> (apiData_);
 
@@ -3685,7 +3685,7 @@ void MidiOutJack :: openPort( unsigned int portNumber, const std::string portNam
   jack_connect( data->client, jack_port_name( data->port ), name.c_str() );
 }
 
-void MidiOutJack :: openVirtualPort( const std::string portName )
+void MidiOutJack :: openVirtualPort( const std::string portName, uint32_t uniqueId )
 {
   JackMidiData *data = static_cast<JackMidiData *> (apiData_);
 

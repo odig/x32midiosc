@@ -3,3 +3,8 @@
 *.o
 x32midiosc
 x32midiosc.dSYM/
+x32midiosc.sdf
+x32midiosc.v11.suo
+x32midiosc.vcxproj.filters
+x32midiosc.vcxproj.user
+Debug

@@ -1,5 +1,3 @@
-#define OS_IS_MACOSX 1
-
 static int localport = 10000;
 static int remoteport = 10023;
 static char remoteIP[32];
@@ -21,9 +19,12 @@ static bool noToggle=false;
 #include <sys/socket.h>
 #include <signal.h>
 #elif OS_IS_WIN32 == 1
-#include "windows.h"
-#include "winsock2.h"
+#include <winsock2.h>
+#include <windows.h>
+#include <stdio.h>
+#include "stdint.h"
 #define socklen_t   int
+#define snprintf _snprintf
 #else
 #error "Invalid Platform"
 #endif
@@ -136,14 +137,17 @@ void dumpBuffer(char *buffer, size_t bufferLen)
     }    
 }
 
+#if OS_IS_LINUX == 1 || OS_IS_MACOSX == 1 || OS_IS_CYGWIN == 1
 void signalHandler(int s)
 {
     printf("Caught signal %d\n",s);
     doExit=true;
 }
+#endif
 
 void registerSignalHandler(void)
 {
+#if OS_IS_LINUX == 1 || OS_IS_MACOSX == 1 || OS_IS_CYGWIN == 1
    struct sigaction sigIntHandler;
 
    sigIntHandler.sa_handler = signalHandler;
@@ -151,8 +155,10 @@ void registerSignalHandler(void)
    sigIntHandler.sa_flags = 0;
 
    sigaction(SIGINT, &sigIntHandler, NULL);
+#else
+	return;
+#endif
 }
-
 bool lockChannel(int channel, CHANNEL_LOCKER channelLocker)
 {
     if(channel>=MAX_CHANNELS)
@@ -249,7 +255,7 @@ int networkInit(int port)
     err = fcntl(udpSocket, F_SETFL, O_NONBLOCK);
 #elif OS_IS_WIN32 == 1
     unsigned long val = 1;
-    err = ioctludpSocket(udpSocket, FIONBIO, &val);
+    err = ioctlsocket(udpSocket, FIONBIO, &val);
 #endif
     if (err != 0)
     {
@@ -269,13 +275,21 @@ int networkInit(int port)
 
 void networkSend(int udpSocket, struct sockaddr_in *address, const uint8_t *data, int dataLen)
 {
+#if OS_IS_LINUX == 1 || OS_IS_MACOSX == 1 || OS_IS_CYGWIN == 1
     int actSend = sendto(udpSocket,
                          data,
                          dataLen,
                          0,
                          (struct sockaddr*) address,
                          addressSize);
-
+#else
+    int actSend = sendto(udpSocket,
+                         (const char *) data,
+                         dataLen,
+                         0,
+                         (struct sockaddr*) address,
+                         addressSize);
+#endif
     //check if transmission was successful 
     if (dataLen != actSend)
     {
@@ -293,12 +307,21 @@ int networkReceive(int udpSocket, uint8_t *data)
     receiveAddress.sin_port = htons(0);
 
     //receive from network
+#if OS_IS_LINUX == 1 || OS_IS_MACOSX == 1 || OS_IS_CYGWIN == 1
     int received = recvfrom(udpSocket,
                              data,
                              MAX_RX_UDP_PACKET,
                              0,
                              (struct sockaddr *) &receiveAddress,
                              (socklen_t *) & addressSize);
+#else
+    int received = recvfrom(udpSocket,
+                             (char *) data,
+                             MAX_RX_UDP_PACKET,
+                             0,
+                             (struct sockaddr *) &receiveAddress,
+                             & addressSize);
+#endif
 
     return received;
 }
@@ -309,7 +332,7 @@ int networkHalt(int udpSocket)
 #if OS_IS_LINUX == 1 || OS_IS_MACOSX == 1 || OS_IS_CYGWIN == 1
     close(udpSocket);
 #elif OS_IS_WIN32 == 1
-    closeudpSocket(udpSocket);
+    closesocket(udpSocket);
     WSACleanup();
 #endif
     return 0;
@@ -1628,23 +1651,24 @@ void initScribbleScripts(midiInfo_t *midiInfo)
   */
 int main(int argc, char *argv[])
 {
-    uint8_t rxBuffer[MAX_RX_UDP_PACKET];
-    struct sockaddr_in address;
-    int udpSocket;
-    int count;
-    int initCount=10;
-    int d = 70;
+	uint8_t rxBuffer[MAX_RX_UDP_PACKET];
+	struct sockaddr_in address;
+	int udpSocket;
+	int count;
+	int initCount=10;
+	int d = 70;
+	std::string portName;
 
-    strcpy(remoteIP, "172.17.100.2");
+	strcpy(remoteIP, "172.17.100.2");
 
-    midiInfo_t midiInfo[MAX_MIDI_PORT];
-    
-    memset(midiInfo,0,sizeof(midiInfo));
-    memset(muteState,0,sizeof(muteState));
+	midiInfo_t midiInfo[MAX_MIDI_PORT];
 
-    lockChannelClear();
+	memset(midiInfo,0,sizeof(midiInfo));
+	memset(muteState,0,sizeof(muteState));
 
-    registerSignalHandler();
+	lockChannelClear();
+
+	registerSignalHandler();
 
     //process arguments
     if (argc > 1)
@@ -1653,6 +1677,81 @@ int main(int argc, char *argv[])
         remoteport = atoi(argv[2]);
     if (argc > 3)
         strcpy(remoteIP, argv[3]);
+
+	if (argc > 1 && !strncmp(argv[1],"l",1))
+	{
+		RtMidiIn  *midiin = 0;
+		RtMidiOut *midiout = 0;
+
+		// RtMidiIn constructor
+		try 
+		{
+			midiin = new RtMidiIn();
+		}
+		catch ( RtError &error ) 
+		{
+			error.printMessage();
+			exit( EXIT_FAILURE );
+		}
+
+		// Check inputs.
+		unsigned int nPorts = midiin->getPortCount();
+		std::cout << "\nThere are " << nPorts << " MIDI input sources available.\n";
+		for ( unsigned int i=0; i<nPorts; i++ ) 
+		{
+			try 
+			{
+				portName = midiin->getPortName(i);
+			}
+			catch ( RtError &error ) 
+			{
+				error.printMessage();
+				goto cleanup;
+			}
+			printf("\t\t Input Port %-3d: '%s'\n",i,portName.c_str());
+		}
+
+		// RtMidiOut constructor
+		try 
+		{
+			midiout = new RtMidiOut();
+		}
+		catch ( RtError &error ) 
+		{
+			error.printMessage();
+			exit( EXIT_FAILURE );
+		}
+
+		// Check outputs.
+		nPorts = midiout->getPortCount();
+		std::cout << "\nThere are " << nPorts << " MIDI output ports available.\n";
+		for ( unsigned int i=0; i<nPorts; i++ ) 
+		{
+			try 
+			{
+				portName = midiout->getPortName(i);
+			}
+			catch (RtError &error) {
+				error.printMessage();
+				goto cleanup;
+			}
+			printf("\t\tOutput Port %-3d: '%s'\n",i,portName.c_str());
+		}
+		std::cout << '\n';
+
+		// Clean up
+cleanup:
+		delete midiin;
+		delete midiout;
+
+		return 0;
+	}
+
+    if (argc < 15)
+	{
+		printf("help");
+		return -1;
+	}
 
     printf("Setting up network layer. local port:%d remote port:%d remote IP:%s\n",localport,remoteport,remoteIP);
 
@@ -1673,6 +1772,7 @@ int main(int argc, char *argv[])
         catch ( RtError &error ) 
         {
             error.printMessage();
+            exit( EXIT_FAILURE );
         }
 
         // RtMidiOut constructor                                                                                                                                           
@@ -1683,13 +1783,32 @@ int main(int argc, char *argv[])
         catch ( RtError &error ) 
         {
             error.printMessage();
+            exit( EXIT_FAILURE );
         }
 
         try 
         {
             char s[128];
-            sprintf(s,"x32midioscin%d",i);
-            midiInfo[i].midiin->openVirtualPort(s,0x47494401+i);
+            sprintf(s,"x32midioscIn%d",i);
+
+			if (argc > 3)
+			{
+				try 
+				{
+					portName = midiInfo[i].midiin->getPortName(atoi(argv[4+i]));
+					printf("\t\t [%02d]  Input Port: '%s'\n",i+1,portName.c_str());
+				}
+				catch ( RtError &error ) 
+				{
+					error.printMessage();
+					exit( EXIT_FAILURE );
+ 				}
+				midiInfo[i].midiin->openPort(i+1,s);
+			}
+			else
+			{
+				midiInfo[i].midiin->openVirtualPort(s,0x47494401+i);
+			}
         }
         catch ( RtError &error ) {
             error.printMessage();
@@ -1699,8 +1818,25 @@ int main(int argc, char *argv[])
         try 
         {
             char s[128];
-            sprintf(s,"x32midioscin%d",i);
-            midiInfo[i].midiout->openVirtualPort(s,0x4F444901+i);
+            sprintf(s,"x32midioscOut%d",i);
+			if (argc > 3)
+			{
+				try 
+				{
+					portName = midiInfo[i].midiin->getPortName(atoi(argv[4+MAX_MIDI_PORT+i]));
+					printf("\t\t [%02d] Output Port: '%s'\n\n",i+1,portName.c_str());
+				}
+				catch ( RtError &error ) 
+				{
+					error.printMessage();
+					goto cleanup;
+				}
+				midiInfo[i].midiout->openPort((i*2)+1,s);
+			}
+			else
+			{
+	            midiInfo[i].midiout->openVirtualPort(s,0x4F444901+i);
+			}
         }
         catch ( RtError &error ) {
             error.printMessage();
@@ -1782,7 +1918,6 @@ int main(int argc, char *argv[])
         d++;
     }
 
-exit:
     for (int i=0;i<MAX_MIDI_PORT;i++)    
     {
         midiInfo[i].midiin->closePort();
