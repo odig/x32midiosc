@@ -1746,7 +1746,7 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-    if (argc < 15)
+    if (argc>4 && argc < 15)
 	{
 		printf("help");
 		return -1;
@@ -1792,7 +1792,7 @@ int main(int argc, char *argv[])
             char s[128];
             sprintf(s,"x32midioscIn%d",i);
 
-			if (argc > 3)
+			if (argc > 4)
 			{
 				try 
 				{
@@ -1820,7 +1820,7 @@ int main(int argc, char *argv[])
         {
             char s[128];
             sprintf(s,"x32midioscOut%d",i);
-			if (argc > 3)
+			if (argc > 4)
 			{
 				try 
 				{
