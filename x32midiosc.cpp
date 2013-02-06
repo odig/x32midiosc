@@ -1763,7 +1763,9 @@ int main(int argc, char *argv[])
 
     for (int i=0;i<MAX_MIDI_PORT;i++)    
     {
-        // RtMidiOut constructor                                                                                                                                           
+		midiInfo[i].channel=i+1;
+    
+		// RtMidiOut constructor                                                                                                                                           
         try 
         {
             midiInfo[i].midiin = new RtMidiIn();
@@ -1802,7 +1804,7 @@ int main(int argc, char *argv[])
 					error.printMessage();
 					exit( EXIT_FAILURE );
  				}
-				midiInfo[i].midiin->openPort(i+1,s);
+				midiInfo[i].midiin->openPort(atoi(argv[4+i]),s);
 			}
 			else
 			{
@@ -1822,7 +1824,7 @@ int main(int argc, char *argv[])
 			{
 				try 
 				{
-					portName = midiInfo[i].midiin->getPortName(atoi(argv[4+MAX_MIDI_PORT+i]));
+					portName = midiInfo[i].midiout->getPortName(atoi(argv[MAX_MIDI_PORT+4+i]));
 					printf("\t\t [%02d] Output Port: '%s'\n\n",i+1,portName.c_str());
 				}
 				catch ( RtError &error ) 
@@ -1830,7 +1832,7 @@ int main(int argc, char *argv[])
 					error.printMessage();
                     exit( EXIT_FAILURE );
 				}
-				midiInfo[i].midiout->openPort((i*2)+1,s);
+				midiInfo[i].midiout->openPort(atoi(argv[MAX_MIDI_PORT+4+i]),s);
 			}
 			else
 			{
