@@ -76,12 +76,52 @@ static int muteState[MAX_CHANNELS];
 static int soloState[MAX_CHANNELS];
 static int selectState[MAX_CHANNELS];
 
+const char *channelNameIn[] = {
+    "ToX32_C1-8",
+    "ToX32_C9-16",
+    "ToX32_C17-24",
+    "ToX32_C25-32",
+    "ToX32_B1-08",
+    "ToX32_B9-16"
+};
+
+const char *channelNameOut[] = {
+    "FromX32_C1-8",
+    "FromX32_C9-16",
+    "FromX32_C17-24",
+    "FromX32_C25-32",
+    "FromX32_B1-08",
+    "FromX32_B9-16"
+};
+
 const char *CLIENT_HELP_STR = 
     "\n"
-    " x32osctomidi 1.00 help\n"
+    " x32midiosc Version 0.02 help\n"
     "\n"
-    " Invoking \"x32osctomidi\":\n"
-    " x32osctomidi [local port] [remote port] [remote IP]\n"
+    " Invoking \"x32midiosc\":\n"
+    " x32midiosc [local port] [X32 port] [X32 IP] (Startup with virtual ports; OSX only)\n"
+    " x32midiosc --list (Gives a list of available midi ports)\n"
+    " x32midiosc [local port] [X32 port] [X32 IP] [in1] .. [in6] [out1] .. [out6]\n"
+    " \t[inX] and [outx] MIDI port number x32midiosc read from and DAW writes to.\n"
+    " \t according to the 'x32midiosc --list' output\n"
+    " \t [in1] \treceiving MIDI data on this port will be mapped to  CH01-08 on X32\n"
+    " \t [in2] \treceiving MIDI data on this port will be mapped to  CH09-16 on X32\n"
+    " \t [in3] \treceiving MIDI data on this port will be mapped to  CH17-24 on X32\n"
+    " \t [in4] \treceiving MIDI data on this port will be mapped to  CH25-32 on X32\n"
+    " \t [in5] \treceiving MIDI data on this port will be mapped to Bus01-08 on X32\n"
+    " \t [in6] \treceiving MIDI data on this port will be mapped to Bus09-16 on X32 + Master Fader on X32\n"
+    " \t \n"
+    " \t [out1]\t CH01-08 on X32 will be sending MIDI data to this port\n"
+    " \t [out1]\t CH09-16 on X32 will be sending MIDI data to this port\n"
+    " \t [out1]\t CH17-24 on X32 will be sending MIDI data to this port\n"
+    " \t [out1]\t CH25-32 on X32 will be sending MIDI data to this port\n"
+    " \t [out1]\tBUS01-08 on X32 will be sending MIDI data to this port\n"
+    " \t [out1]\tBUS09-16 on X32 and Master Fader will be sending MIDI data to this port\n"
+    " \t \n"
+    " \t Sample:\n"
+    " \t \n"
+    " \t \t x32midiosc 10000 10023 192.168.1.2 0 1 2 3 4 5 6 7 8 9 10 11\n"
+    " \t \n"
     "\n";
 
 #if OS_IS_LINUX == 1 || OS_IS_MACOSX == 1 || OS_IS_CYGWIN == 1
@@ -1678,7 +1718,7 @@ int main(int argc, char *argv[])
     if (argc > 3)
         strcpy(remoteIP, argv[3]);
 
-	if (argc > 1 && !strncmp(argv[1],"l",1))
+	if (argc > 1 && !strncmp(argv[1],"--list",6))
 	{
 		RtMidiIn  *midiin = 0;
 		RtMidiOut *midiout = 0;
@@ -1746,9 +1786,19 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
+    if (argc > 1 && !strncmp(argv[1],"--help",6))
+    {
+        printf("%s",CLIENT_HELP_STR);
+        return 0;
+    }
+    if (argc<4)
+    {
+        printf("%s",CLIENT_HELP_STR);
+        return -1;
+    }
     if (argc>4 && argc < 15)
 	{
-		printf("help");
+        printf("%s",CLIENT_HELP_STR);
 		return -1;
 	}
 
@@ -1789,9 +1839,6 @@ int main(int argc, char *argv[])
 
         try 
         {
-            char s[128];
-            sprintf(s,"x32midioscIn%d",i);
-
 			if (argc > 4)
 			{
 				try 
@@ -1804,11 +1851,11 @@ int main(int argc, char *argv[])
 					error.printMessage();
 					exit( EXIT_FAILURE );
  				}
-				midiInfo[i].midiin->openPort(atoi(argv[4+i]),s);
+				midiInfo[i].midiin->openPort(atoi(argv[4+i]),channelNameIn[i]);
 			}
 			else
 			{
-				midiInfo[i].midiin->openVirtualPort(s,0x47494401+i);
+				midiInfo[i].midiin->openVirtualPort(channelNameIn[i],0x47494401+i);
 			}
         }
         catch ( RtError &error ) {
@@ -1818,8 +1865,6 @@ int main(int argc, char *argv[])
 
         try 
         {
-            char s[128];
-            sprintf(s,"x32midioscOut%d",i);
 			if (argc > 4)
 			{
 				try 
@@ -1832,11 +1877,11 @@ int main(int argc, char *argv[])
 					error.printMessage();
                     exit( EXIT_FAILURE );
 				}
-				midiInfo[i].midiout->openPort(atoi(argv[MAX_MIDI_PORT+4+i]),s);
+				midiInfo[i].midiout->openPort(atoi(argv[MAX_MIDI_PORT+4+i]),channelNameOut[i]);
 			}
 			else
 			{
-	            midiInfo[i].midiout->openVirtualPort(s,0x4F444901+i);
+	            midiInfo[i].midiout->openVirtualPort(channelNameOut[i],0x4F444901+i);
 			}
         }
         catch ( RtError &error ) {
