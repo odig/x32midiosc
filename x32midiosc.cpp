@@ -56,8 +56,13 @@ static bool noToggle=false;
 
 #define PROTOCOL_UDP            17
 #define MAX_RX_UDP_PACKET       2048
-#define MAX_MIDI_PORT           6
+#define MAX_MIDI_PORT           9
 #define MAX_CHANNELS            (((MAX_MIDI_PORT)*8)+1)
+
+int maxMidiPort = MAX_MIDI_PORT;
+int maxChannels;
+bool useAllPorts=false;
+
 typedef enum 
 {
     NO_LOCK,
@@ -82,7 +87,10 @@ const char *channelNameIn[] = {
     "ToX32_C17-24",
     "ToX32_C25-32",
     "ToX32_B1-08",
-    "ToX32_B9-16"
+    "ToX32_B9-16",
+    "ToX32_A1-8",
+    "ToX32_A9-16",
+    "ToX32_M1-6+M"
 };
 
 const char *channelNameOut[] = {
@@ -91,7 +99,10 @@ const char *channelNameOut[] = {
     "FromX32_C17-24",
     "FromX32_C25-32",
     "FromX32_B1-08",
-    "FromX32_B9-16"
+    "FromX32_B9-16",
+    "FromX32_A1-8",
+    "FromX32_A9-16",
+    "FromX32_M1-6+M"
 };
 
 const char *CLIENT_HELP_STR = 
@@ -723,30 +734,33 @@ void midiSendPan(midiInfo_t midiInfo[], int midiInterface, int channel,float f)
     uint16_t val;
 
 
-    int channelNumber = (channel+((midiInterface)*8));
-    if (true) //lockChannel(channelNumber,OSC_LOCK))
+    if (useAllPorts || midiInterface < maxMidiPort)
     {
-        val = (f * 127)+1;
-
-        std::vector<unsigned char> message;
-        message.push_back(0xB0);
-        message.push_back(0x10+(channel));
-        message.push_back(val&0x7f);
-
-        try 
+        int channelNumber = (channel+((midiInterface)*8));
+        if (true) //lockChannel(channelNumber,OSC_LOCK))
         {
-            midiInfo[midiInterface].midiout->sendMessage( &message );
-            printf("[%02d][%d] sent Pan %02x %02x %02x (%4x)\n",channelNumber+1,midiInterface+1,message[0],message[1],message[2], val);
-            message.clear();
+            val = (f * 127)+1;
+
+            std::vector<unsigned char> message;
+            message.push_back(0xB0);
+            message.push_back(0x10+(channel));
+            message.push_back(val&0x7f);
+
+            try 
+            {
+                midiInfo[midiInterface].midiout->sendMessage( &message );
+                printf("[%02d][%d] sent Pan %02x %02x %02x (%4x)\n",channelNumber+1,midiInterface+1,message[0],message[1],message[2], val);
+                message.clear();
+            }
+            catch ( RtError &error ) 
+            {
+                error.printMessage();
+            }
         }
-        catch ( RtError &error ) 
+        else
         {
-            error.printMessage();
+            if(debugLock) printf("\t\t[%02d] LOCKED from Midi\n",channelNumber+1);
         }
-    }
-    else
-    {
-        if(debugLock) printf("\t\t[%02d] LOCKED from Midi\n",channelNumber+1);
     }
 }
 
@@ -819,7 +833,7 @@ void midiSendNoteBankSwitch(midiInfo_t midiInfo[], int channel, int note, int ve
     midiSendNoteOn(0, midiInfo, 0, channel, note, velocity);
     return;
 
-    for(int i=0;i<MAX_CHANNELS-1;i++)
+    for(int i=0;i<maxChannels-1;i++)
     {
         if(selectState[i]!=0)
         {
@@ -988,6 +1002,33 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
     if(!strcmp("/bus/15/mix/pan",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,5,6,osc->fPar[0]); return;}
     if(!strcmp("/bus/16/mix/pan",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,5,7,osc->fPar[0]); return;}
 
+    if(!strcmp("/auxin/01/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,0,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/02/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,1,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/03/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,2,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/04/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,3,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/05/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,4,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/06/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,5,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/07/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,6,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/08/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,7,osc->fPar[0]); return;}
+
+    if(!strcmp("/fxrtn/01/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,0,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/02/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,1,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/03/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,2,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/04/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,3,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/05/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,4,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/06/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,5,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/07/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,6,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/08/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,7,osc->fPar[0]); return;}
+
+    if(!strcmp("/mtx/01/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,0,osc->fPar[0]); return;}
+    if(!strcmp("/mtx/02/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,1,osc->fPar[0]); return;}
+    if(!strcmp("/mtx/03/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,2,osc->fPar[0]); return;}
+    if(!strcmp("/mtx/04/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,3,osc->fPar[0]); return;}
+    if(!strcmp("/mtx/05/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,4,osc->fPar[0]); return;}
+    if(!strcmp("/mtx/06/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,5,osc->fPar[0]); return;}
+    //if(!strcmp("not mapped to OSC",osc->address) && osc->fCount>0) {midiSendPan(midiInfo,8,6,osc->fPar[0]); return;}
+    if(!strcmp("/main/m/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,7,osc->fPar[0]); return;}
+
     //bank left/right
     //if(!strcmp("/-stat/userpar/17/value",osc->address) && osc->iCount>0 && osc->iPar[0]==0x7f)  {midiSendNoteBankSwitch(midiInfo,0,0x30,0x7f); return;}
     //if(!strcmp("/-stat/userpar/18/value",osc->address) && osc->iCount>0 && osc->iPar[0]==0x7f)  {midiSendNoteBankSwitch(midiInfo,0,0x31,0x7f); return;}
@@ -996,7 +1037,7 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
 
     if(!strcmp("/-stat/userpar/17/value",osc->address) && osc->iCount>0 && osc->iPar[0]==0x7f)  
     {
-        for (int i=0;i<MAX_MIDI_PORT;i++)
+        for (int i=0;i<maxMidiPort;i++)
         {
             for(int j=0;j<10;j++)
             {
@@ -1004,7 +1045,7 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
                 midiSendNoteBankSwitchInit(midiInfo, i, 0, 0x2e, 0x7f);
             }
         } 
-        for (int i=0;i<MAX_MIDI_PORT;i++)
+        for (int i=0;i<maxMidiPort;i++)
         {
             for(int j=i;j>0;j--)
             {
@@ -1047,7 +1088,7 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
         int midiInterface;
         int number=osc->iPar[0];
         
-        for(int i=0;i<MAX_CHANNELS-1;i++)
+        for(int i=0;i<maxChannels-1;i++)
         {
             if(selectState[i]!=0)
             {
@@ -1103,7 +1144,7 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
 
         intval = osc->iPar[0]==1?0:1;
 
-        for(int i=0;i<MAX_CHANNELS;i++)
+        for(int i=0;i<maxChannels;i++)
         {
             if(i<32)
             {
@@ -1119,7 +1160,7 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
                 buffer[7]='/';
                 sprintf(&buffer[20],"%c%c%c%c",*(byteval+3),*(byteval+2),*(byteval+1),*(byteval+0));
             }
-            else if(i==MAX_CHANNELS)
+            else if(i==maxChannels)
             {
                 memcpy(buffer,"/main/st/mix/on\0,i\0\0",20);
                 sprintf(&buffer[20],"%c%c%c%c",*(byteval+3),*(byteval+2),*(byteval+1),*(byteval+0));
@@ -1138,7 +1179,7 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
 
 void midiSendPollAnswer(midiInfo_t midiInfo[])
 {
-    for (int j=0;j<MAX_MIDI_PORT;j++)
+    for (int j=0;j<maxMidiPort;j++)
     {
         for (int i=0;i<MAX_POLL_ANSWER;i++)
         {
@@ -1441,7 +1482,7 @@ bool handleMidiNoteOn(int channel, const char *text, const char *key, std::vecto
         {
             int midiChannel=(*(p+1)&0x0f);
             int channelNumber = midiChannel+((channel-1)*8);
-            if (channelNumber>=MAX_CHANNELS)
+            if (channelNumber>=maxChannels)
             {
                 return false;
             }
@@ -1491,7 +1532,7 @@ bool handleMidiNoteOn(int channel, const char *text, const char *key, std::vecto
         {
             int midiChannel=(*(p+1)&0x07);
             int channelNumber = midiChannel+((channel-1)*8);
-            if (channelNumber>=MAX_CHANNELS)
+            if (channelNumber>=maxChannels)
             {
                 return false;
             }
@@ -1534,7 +1575,7 @@ bool handleMidiNoteOn(int channel, const char *text, const char *key, std::vecto
         {
             int midiChannel=(*(p+1)&0x07);
             int channelNumber = midiChannel+((channel-1)*8);
-            if (channelNumber>=MAX_CHANNELS)
+            if (channelNumber>=maxChannels)
             {
                 return false;
             }
@@ -1610,30 +1651,33 @@ void midiCallback( double deltatime, std::vector< unsigned char > *message, void
 
     if(handleMidiNoteOn(midiInfo->channel,"mute/solo/select","\x90",message,midiInfo->udpSocket)) return;
 
-    if(matchMidiString(midiInfo->channel,"\xF0\x7e\x00\x06\x01\xf7",6,message)) //some kind of poll request for autodetect
+    //no autodetect for aditional channels
+    if (midiInfo->channel<maxMidiPort)
     {
-        midiInfo->sendPollAnswer[0]=true;
-        return;  
-    } 
+        if(matchMidiString(midiInfo->channel,"\xF0\x7e\x00\x06\x01\xf7",6,message)) //some kind of poll request for autodetect
+        {
+            midiInfo->sendPollAnswer[0]=true;
+            return;  
+        } 
 
-    if(matchMidiString(midiInfo->channel,"\xF0\x00\x00\x66\x14\x01\x01\x02\x03\x04\x05\x06\x07\x06\x06\x06\x06\xf7",0x12,message)) //some kind of poll request for autodetect
-    {
-        midiInfo->sendPollAnswer[0]=true;
-        return;  
-    } 
+        if(matchMidiString(midiInfo->channel,"\xF0\x00\x00\x66\x14\x01\x01\x02\x03\x04\x05\x06\x07\x06\x06\x06\x06\xf7",0x12,message)) //some kind of poll request for autodetect
+        {
+            midiInfo->sendPollAnswer[0]=true;
+            return;  
+        } 
 
-    if(matchMidiString(midiInfo->channel,"\xF0\x00\x00\x66\x14\x13\x00\xf7",8,message)) //some kind of poll request for autodetect
-    {
-        midiInfo->sendPollAnswer[1]=true;
-        return;  
-    } 
+        if(matchMidiString(midiInfo->channel,"\xF0\x00\x00\x66\x14\x13\x00\xf7",8,message)) //some kind of poll request for autodetect
+        {
+            midiInfo->sendPollAnswer[1]=true;
+            return;  
+        } 
 
-    if(matchMidiString(midiInfo->channel,"\xF0\x00\x00\x66\x14\x02\x01\x02\x03\x04\x05\x06\x07\x0c\x0c\x68\x10\xf7",0x12,message)) //some kind of poll request for autodetect
-    {
-        midiInfo->sendPollAnswer[2]=true;
-        return;  
-    } 
-
+        if(matchMidiString(midiInfo->channel,"\xF0\x00\x00\x66\x14\x02\x01\x02\x03\x04\x05\x06\x07\x0c\x0c\x68\x10\xf7",0x12,message)) //some kind of poll request for autodetect
+        {
+            midiInfo->sendPollAnswer[2]=true;
+            return;  
+        } 
+    }
 
     //dumpBuffer((char *)message->data(),message->size());
 }
@@ -1646,7 +1690,7 @@ void initScribbleScripts(midiInfo_t *midiInfo)
 
     char buffer[40+1];
 
-    for (channel=1;channel<=MAX_MIDI_PORT;channel++)
+    for (channel=1;channel<=maxMidiPort;channel++)
     {
         for (midiChannel=0;midiChannel<8;midiChannel++)
         {
@@ -1795,11 +1839,24 @@ int main(int argc, char *argv[])
         printf("%s",CLIENT_HELP_STR);
         return -1;
     }
+
+
     if (argc>4 && argc < 15)
 	{
         printf("%s",CLIENT_HELP_STR);
 		return -1;
 	}
+
+    if (argc>22)
+    {
+        printf("%s",CLIENT_HELP_STR);
+        return -1;
+    }
+
+    if (argc<=15)
+    {
+        maxMidiPort-=3;
+    }
 
     printf("Setting up network layer. local port:%d remote port:%d remote IP:%s\n",localport,remoteport,remoteIP);
 
@@ -1810,7 +1867,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    for (int i=0;i<MAX_MIDI_PORT;i++)    
+    for (int i=0;i<maxMidiPort;i++)    
     {
 		midiInfo[i].channel=i+1;
     
@@ -1838,7 +1895,7 @@ int main(int argc, char *argv[])
 
         try 
         {
-			if (argc > 4)
+			if (argc > 4 && atoi(argv[4+i])>=0)
 			{
 				try 
 				{
@@ -1864,11 +1921,11 @@ int main(int argc, char *argv[])
 
         try 
         {
-			if (argc > 4)
+			if (argc > 4 && atoi(argv[maxMidiPort+4+i])>=0)
 			{
 				try 
 				{
-					portName = midiInfo[i].midiout->getPortName(atoi(argv[MAX_MIDI_PORT+4+i]));
+					portName = midiInfo[i].midiout->getPortName(atoi(argv[maxMidiPort+4+i]));
 					printf("\t\t [%02d] Output Port: '%s'\n\n",i+1,portName.c_str());
 				}
 				catch ( RtError &error ) 
@@ -1876,7 +1933,7 @@ int main(int argc, char *argv[])
 					error.printMessage();
                     exit( EXIT_FAILURE );
 				}
-				midiInfo[i].midiout->openPort(atoi(argv[MAX_MIDI_PORT+4+i]),channelNameOut[i]);
+				midiInfo[i].midiout->openPort(atoi(argv[maxMidiPort+4+i]),channelNameOut[i]);
 			}
 			else
 			{
@@ -1925,6 +1982,15 @@ int main(int argc, char *argv[])
         d++;
         initCount --;
     }
+
+    if (argc>15)
+    {
+        maxMidiPort-=3;
+        useAllPorts=true;
+    }
+
+    maxChannels = (((maxMidiPort)*8)+1);
+
     printf("Init done\n");
 
     while (!doExit)
@@ -1963,7 +2029,12 @@ int main(int argc, char *argv[])
         d++;
     }
 
-    for (int i=0;i<MAX_MIDI_PORT;i++)    
+    if (argc>15)
+    {
+        maxMidiPort+=2;
+    }
+
+    for (int i=0;i<maxMidiPort;i++)    
     {
         midiInfo[i].midiin->closePort();
         delete midiInfo[i].midiin;

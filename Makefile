@@ -9,7 +9,7 @@ OBJECTS	 = RtMidi.o
 
 CC       = g++
 DEFS     = -D__MACOSX_CORE__ -DOS_IS_MACOSX=1 
-CFLAGS   = -O0 -Wall -g -GGDB
+CFLAGS   = -O0 -Wall -mmacosx-version-min=10.6 -g -GGDB 
 CFLAGS  += -I$(INCLUDE) -I$(INCLUDE)/include
 LIBRARY  = -framework CoreMIDI -framework CoreFoundation -framework CoreAudio
 
