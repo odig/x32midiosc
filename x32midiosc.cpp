@@ -800,6 +800,17 @@ void midiSendNoteOnForMute(midiInfo_t midiInfo[], int midiInterface, int channel
     }
 }   
 
+void midiSendNoteOnForMuteNoToggle(midiInfo_t midiInfo[], int midiInterface, int channel, int note, int velocity)
+{
+    int channelNumber = ((note&0x0f)+((midiInterface)*8));
+    int val=0x7f;
+
+    //LOGIC has invertet logic on receive 0x7F is enbale mute
+    val = velocity?0:0x7f;
+
+    midiSendNoteOn(channelNumber, midiInfo, midiInterface, channel, note, val);
+}   
+
 void midiSendNoteOnForSolo(int channelNumber, midiInfo_t midiInfo[], int midiInterface, int channel, int note, int velocity)
 {
     int val=0x7f;
@@ -901,6 +912,33 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
     if(!strcmp("/bus/16/mix/fader",osc->address) && osc->fCount>0)   {midiSendPitchBand(midiInfo,5,7,osc->fPar[0]); return;}
     if(!strcmp("/main/st/mix/fader",osc->address) && osc->fCount>0)  {midiSendPitchBand(midiInfo,5,8,osc->fPar[0]); return;}
 
+    if(!strcmp("/auxin/01/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,0,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/02/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,1,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/03/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,2,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/04/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,3,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/05/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,4,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/06/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,5,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/07/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,6,osc->fPar[0]); return;}
+    if(!strcmp("/auxin/08/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,7,osc->fPar[0]); return;}
+
+    if(!strcmp("/fxrtn/01/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,0,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/02/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,1,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/03/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,2,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/04/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,3,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/05/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,4,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/06/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,5,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/07/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,6,osc->fPar[0]); return;}
+    if(!strcmp("/fxrtn/08/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,7,osc->fPar[0]); return;}
+
+    if(!strcmp("/mtx/01/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,0,osc->fPar[0]); return;}
+    if(!strcmp("/mtx/02/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,1,osc->fPar[0]); return;}
+    if(!strcmp("/mtx/03/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,2,osc->fPar[0]); return;}
+    if(!strcmp("/mtx/04/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,3,osc->fPar[0]); return;}
+    if(!strcmp("/mtx/05/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,4,osc->fPar[0]); return;}
+    if(!strcmp("/mtx/06/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,5,osc->fPar[0]); return;}
+    //if(!strcmp("not mapped to OSC",osc->address) && osc->fCount>0) {midiSendPan(midiInfo,8,6,osc->fPar[0]); return;}
+    if(!strcmp("/main/m/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,7,osc->fPar[0]); return;}
+
     //map mute
     if(!strcmp("/ch/01/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,0,0,0x10,osc->iPar[0]); return;}
     if(!strcmp("/ch/02/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,0,0,0x11,osc->iPar[0]); return;}
@@ -934,6 +972,7 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
     if(!strcmp("/ch/30/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,3,0,0x15,osc->iPar[0]); return;}
     if(!strcmp("/ch/31/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,3,0,0x16,osc->iPar[0]); return;}
     if(!strcmp("/ch/32/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,3,0,0x17,osc->iPar[0]); return;}
+
     if(!strcmp("/bus/01/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,4,0,0x10,osc->iPar[0]); return;}
     if(!strcmp("/bus/02/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,4,0,0x11,osc->iPar[0]); return;}
     if(!strcmp("/bus/03/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,4,0,0x12,osc->iPar[0]); return;}
@@ -942,6 +981,7 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
     if(!strcmp("/bus/06/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,4,0,0x15,osc->iPar[0]); return;}
     if(!strcmp("/bus/07/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,4,0,0x16,osc->iPar[0]); return;}
     if(!strcmp("/bus/08/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,4,0,0x17,osc->iPar[0]); return;}
+
     if(!strcmp("/bus/09/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,5,0,0x10,osc->iPar[0]); return;}
     if(!strcmp("/bus/10/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,5,0,0x11,osc->iPar[0]); return;}
     if(!strcmp("/bus/11/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,5,0,0x12,osc->iPar[0]); return;}
@@ -951,6 +991,33 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
     if(!strcmp("/bus/15/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,5,0,0x16,osc->iPar[0]); return;}
     if(!strcmp("/bus/16/mix/on",osc->address) && osc->iCount>0)   {midiSendNoteOnForMute(midiInfo,5,0,0x17,osc->iPar[0]); return;}
     if(!strcmp("/main/st/mix/on",osc->address) && osc->iCount>0)  {midiSendNoteOnForMute(midiInfo,5,0,0x18,osc->iPar[0]); return;}
+
+    if(!strcmp("/auxin/01/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,6,0,0x10,osc->iPar[0]); return;}
+    if(!strcmp("/auxin/02/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,6,0,0x11,osc->iPar[0]); return;}
+    if(!strcmp("/auxin/03/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,6,0,0x12,osc->iPar[0]); return;}
+    if(!strcmp("/auxin/04/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,6,0,0x13,osc->iPar[0]); return;}
+    if(!strcmp("/auxin/05/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,6,0,0x14,osc->iPar[0]); return;}
+    if(!strcmp("/auxin/06/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,6,0,0x15,osc->iPar[0]); return;}
+    if(!strcmp("/auxin/07/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,6,0,0x16,osc->iPar[0]); return;}
+    if(!strcmp("/auxin/08/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,6,0,0x17,osc->iPar[0]); return;}
+
+    if(!strcmp("/fxrtn/01/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,7,0,0x10,osc->iPar[0]); return;}
+    if(!strcmp("/fxrtn/02/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,7,0,0x11,osc->iPar[0]); return;}
+    if(!strcmp("/fxrtn/03/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,7,0,0x12,osc->iPar[0]); return;}
+    if(!strcmp("/fxrtn/04/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,7,0,0x13,osc->iPar[0]); return;}
+    if(!strcmp("/fxrtn/05/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,7,0,0x14,osc->iPar[0]); return;}
+    if(!strcmp("/fxrtn/06/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,7,0,0x15,osc->iPar[0]); return;}
+    if(!strcmp("/fxrtn/07/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,7,0,0x16,osc->iPar[0]); return;}
+    if(!strcmp("/fxrtn/08/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,7,0,0x17,osc->iPar[0]); return;}
+
+    if(!strcmp("/mtx/01/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,8,0,0x10,osc->iPar[0]); return;}
+    if(!strcmp("/mtx/02/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,8,0,0x11,osc->iPar[0]); return;}
+    if(!strcmp("/mtx/03/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,8,0,0x12,osc->iPar[0]); return;}
+    if(!strcmp("/mtx/04/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,8,0,0x13,osc->iPar[0]); return;}
+    if(!strcmp("/mtx/05/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,8,0,0x14,osc->iPar[0]); return;}
+    if(!strcmp("/mtx/06/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,8,0,0x15,osc->iPar[0]); return;}
+    //if(!strcmp("/fxrtn/07/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,8,0,0x16,osc->iPar[0]); return;}
+    if(!strcmp("/main/m/mix/on",osc->address) && osc->iCount>0) {midiSendNoteOnForMuteNoToggle(midiInfo,8,0,0x17,osc->iPar[0]); return;}
 
     //pan
     if(!strcmp("/ch/01/mix/pan",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,0,0,osc->fPar[0]); return;}
@@ -1002,32 +1069,6 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
     if(!strcmp("/bus/15/mix/pan",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,5,6,osc->fPar[0]); return;}
     if(!strcmp("/bus/16/mix/pan",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,5,7,osc->fPar[0]); return;}
 
-    if(!strcmp("/auxin/01/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,0,osc->fPar[0]); return;}
-    if(!strcmp("/auxin/02/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,1,osc->fPar[0]); return;}
-    if(!strcmp("/auxin/03/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,2,osc->fPar[0]); return;}
-    if(!strcmp("/auxin/04/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,3,osc->fPar[0]); return;}
-    if(!strcmp("/auxin/05/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,4,osc->fPar[0]); return;}
-    if(!strcmp("/auxin/06/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,5,osc->fPar[0]); return;}
-    if(!strcmp("/auxin/07/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,6,osc->fPar[0]); return;}
-    if(!strcmp("/auxin/08/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,6,7,osc->fPar[0]); return;}
-
-    if(!strcmp("/fxrtn/01/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,0,osc->fPar[0]); return;}
-    if(!strcmp("/fxrtn/02/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,1,osc->fPar[0]); return;}
-    if(!strcmp("/fxrtn/03/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,2,osc->fPar[0]); return;}
-    if(!strcmp("/fxrtn/04/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,3,osc->fPar[0]); return;}
-    if(!strcmp("/fxrtn/05/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,4,osc->fPar[0]); return;}
-    if(!strcmp("/fxrtn/06/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,5,osc->fPar[0]); return;}
-    if(!strcmp("/fxrtn/07/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,6,osc->fPar[0]); return;}
-    if(!strcmp("/fxrtn/08/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,7,7,osc->fPar[0]); return;}
-
-    if(!strcmp("/mtx/01/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,0,osc->fPar[0]); return;}
-    if(!strcmp("/mtx/02/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,1,osc->fPar[0]); return;}
-    if(!strcmp("/mtx/03/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,2,osc->fPar[0]); return;}
-    if(!strcmp("/mtx/04/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,3,osc->fPar[0]); return;}
-    if(!strcmp("/mtx/05/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,4,osc->fPar[0]); return;}
-    if(!strcmp("/mtx/06/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,5,osc->fPar[0]); return;}
-    //if(!strcmp("not mapped to OSC",osc->address) && osc->fCount>0) {midiSendPan(midiInfo,8,6,osc->fPar[0]); return;}
-    if(!strcmp("/main/m/mix/fader",osc->address) && osc->fCount>0)   {midiSendPan(midiInfo,8,7,osc->fPar[0]); return;}
 
     //bank left/right
     //if(!strcmp("/-stat/userpar/17/value",osc->address) && osc->iCount>0 && osc->iPar[0]==0x7f)  {midiSendNoteBankSwitch(midiInfo,0,0x30,0x7f); return;}
@@ -1066,9 +1107,17 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
         {
             channelNumber=number-1;
         }
+        else if(number>=33 && number<=48)
+        {
+            channelNumber=number+16-1;
+        }
         else if(number>=49 && number<=64)
         {
             channelNumber=number-16-1;
+        }
+        else if(number>=65 && number<=72)
+        {
+            channelNumber=number-1;
         }
 
         midiInterface=channelNumber/8;
@@ -1099,9 +1148,21 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
                     midiInterface=channelNumber/8;
                     channel=channelNumber%8;
                 }
+                else if(i>=32 && i<=47)
+                {
+                    channelNumber=i+16;
+                    midiInterface=channelNumber/8;
+                    channel=channelNumber%8;
+                }
                 else if(i>=48 && i<=63)
                 {
                     channelNumber=i-16;
+                    midiInterface=channelNumber/8;
+                    channel=channelNumber%8;
+                }
+                else if(i>=64 && i<=71)
+                {
+                    channelNumber=i;
                     midiInterface=channelNumber/8;
                     channel=channelNumber%8;
                 }
@@ -1120,9 +1181,21 @@ void mapOSC(OSCSTRUCT *osc, midiInfo_t midiInfo[])
             midiInterface=channelNumber/8;
             channel=channelNumber%8;
         }
+        else if(number>=32 && number<=47)
+        {
+            channelNumber=number+16;
+            midiInterface=channelNumber/8;
+            channel=channelNumber%8;
+        }
         else if(number>=48 && number<=63)
         {
             channelNumber=number-16;
+            midiInterface=channelNumber/8;
+            channel=channelNumber%8;
+        }
+        else if(number>=64 && number<=71)
+        {
+            channelNumber=number;
             midiInterface=channelNumber/8;
             channel=channelNumber%8;
         }
