@@ -107,7 +107,7 @@ const char *channelNameOut[] = {
 
 const char *CLIENT_HELP_STR = 
     "\n"
-    " x32midiosc Version 0.02 help\n"
+    " x32midiosc Version 0.03 help\n"
     "\n"
     " Invoking \"x32midiosc\":\n"
     " x32midiosc [local port] [X32 port] [X32 IP] (use virtual ports; OSX only)\n"
@@ -132,6 +132,35 @@ const char *CLIENT_HELP_STR =
 	"          MIDI data to this port\n"
     "   \n"
     "   Sample: x32midiosc 10000 10023 192.168.1.2 0 1 2 3 4 5 6 7 8 9 10 11\n"
+    "   \n"
+    " x32midiosc [local port] [X32 port] [X32 IP] [in1] .. [in9] [out1] .. [out9]\n"
+    "   [inX] and [outx] MIDI port number x32midiosc read from and DAW writes to.\n"
+    "   according to the 'x32midiosc --list' output\n"
+    "   [in1]  receiving MIDI data on this port will be mapped to  CH01-08 on X32\n"
+    "   [in2]  receiving MIDI data on this port will be mapped to  CH09-16 on X32\n"
+    "   [in3]  receiving MIDI data on this port will be mapped to  CH17-24 on X32\n"
+    "   [in4]  receiving MIDI data on this port will be mapped to  CH25-32 on X32\n"
+    "   [in5]  receiving MIDI data on this port will be mapped to Bus01-08 on X32\n"
+    "   [in6]  receiving MIDI data on this port will be mapped to Bus09-16 on X32\n"
+	"          plus Master Fader on X32\n"
+    "   [in7]  receiving MIDI data on this port will be mapped to Aux01-08 on X32\n"
+    "   [in8]  receiving MIDI data on this port will be mapped to Aux09-16 on X32\n"
+    "   [in9]  receiving MIDI data on this port will be mapped to Matrix 01-08 on X32\n"
+    "   \n"
+    "   [out1] CH01-08 on X32 will be sending MIDI data to this port\n"
+    "   [out2] CH09-16 on X32 will be sending MIDI data to this port\n"
+    "   [out3] CH17-24 on X32 will be sending MIDI data to this port\n"
+    "   [out4] CH25-32 on X32 will be sending MIDI data to this port\n"
+    "   [out5] BUS01-08 on X32 will be sending MIDI data to this port\n"
+    "   [out6] BUS09-16 on X32 and Master Fader will be sending\n"
+	"          MIDI data to this port\n"
+    "   [out7] AUX01-08 on X32 will be sending MIDI data to this port\n"
+    "   [out8] AUX09-16 on X32 will be sending MIDI data to this port\n"
+    "   [out9] MATRIX01-08 on X32 will be sending MIDI data to this port\n"
+    "   \n"
+    "   Sample: x32midiosc 10000 10023 172.17.100.2 9 10 11 12 13 14 15 16 17 1 2 3 4 5 6 7 8 9\n"
+
+	
     "\n";
 
 #if OS_IS_LINUX == 1 || OS_IS_MACOSX == 1 || OS_IS_CYGWIN == 1
@@ -1914,7 +1943,7 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc>4 && argc < 15)
+    if (argc>4 && argc < 16)
 	{
         printf("%s",CLIENT_HELP_STR);
 		return -1;
@@ -1926,7 +1955,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if (argc<=15)
+    if (argc<=16)
     {
         maxMidiPort-=3;
     }
