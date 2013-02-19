@@ -1952,18 +1952,42 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-    if (argc>22)
+    if (argc>23)
     {
         printf("%s",CLIENT_HELP_STR);
         return -1;
     }
 
-    if (argc<=16)
+    if (argc<=17)
     {
         maxMidiPort-=3;
     }
 
-    printf("Setting up network layer. local port:%d remote port:%d remote IP:%s\n",localport,remoteport,remoteIP);
+    if (argc==17)
+	{
+		if (atoi(argv[16])==1)
+		{
+			noToggle=true;
+		}
+		else
+		{
+			noToggle=false;
+		}
+	}
+
+    if (argc==23)
+	{
+		if (atoi(argv[22])==1)
+		{
+			noToggle=true;
+		}
+		else
+		{
+			noToggle=false;
+		}
+	}
+
+	printf("Setting up network layer. local port:%d remote port:%d remote IP:%s\n",localport,remoteport,remoteIP);
 
     udpSocket = networkInit(localport);
     if ( udpSocket < 0 )
@@ -2088,7 +2112,7 @@ int main(int argc, char *argv[])
         initCount --;
     }
 
-    if (argc>15)
+    if (argc>17)
     {
         maxMidiPort-=3;
         useAllPorts=true;
@@ -2134,9 +2158,9 @@ int main(int argc, char *argv[])
         d++;
     }
 
-    if (argc>15)
+    if (argc>17)
     {
-        maxMidiPort+=2;
+        maxMidiPort+=3;
     }
 
     for (int i=0;i<maxMidiPort;i++)    
