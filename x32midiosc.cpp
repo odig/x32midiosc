@@ -729,33 +729,36 @@ void midiSendPitchBand(midiInfo_t midiInfo[], int midiInterface, int channel,flo
     uint16_t val;
 
 
-    int channelNumber = (channel+((midiInterface)*8));
-    if (lockChannel(channelNumber,OSC_LOCK))
-    {
-        //val = f * 0x3fff;
-        val = f * 0x3a7b;
+    if (useAllPorts || midiInterface < maxMidiPort)
+	{
+		int channelNumber = (channel+((midiInterface)*8));
+		if (lockChannel(channelNumber,OSC_LOCK))
+		{
+			//val = f * 0x3fff;
+			val = f * 0x3a7b;
 
-        std::vector<unsigned char> message;
-        message.push_back(0xE0+(channel));
-        message.push_back(val&0x7f);
-        message.push_back((val>>7)&0x7f);
+			std::vector<unsigned char> message;
+			message.push_back(0xE0+(channel));
+			message.push_back(val&0x7f);
+			message.push_back((val>>7)&0x7f);
 
 
-        try 
-        {
-            midiInfo[midiInterface].midiout->sendMessage( &message );
-            printf("[%02d][%d] sent PitchBand to DAW %02x %02x %02x (%4x)\n",channelNumber+1,midiInterface+1,message[0],message[1],message[2], val);
-            message.clear();
-        }
-        catch ( RtError &error ) 
-        {
-            error.printMessage();
-        }
-    }
-    else
-    {
-        if(debugLock) printf("\t\t[%02d] LOCKED from Midi\n",channelNumber+1);
-    }
+			try 
+			{
+				midiInfo[midiInterface].midiout->sendMessage( &message );
+				printf("[%02d][%d] sent PitchBand to DAW %02x %02x %02x (%4x)\n",channelNumber+1,midiInterface+1,message[0],message[1],message[2], val);
+				message.clear();
+			}
+			catch ( RtError &error ) 
+			{
+				error.printMessage();
+			}
+		}
+		else
+		{
+			if(debugLock) printf("\t\t[%02d] LOCKED from Midi\n",channelNumber+1);
+		}
+	}
 }
 
 void midiSendPan(midiInfo_t midiInfo[], int midiInterface, int channel,float f)
