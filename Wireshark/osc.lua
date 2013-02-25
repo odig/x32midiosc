@@ -9,7 +9,7 @@ do
                 return n
             else
                 return n - full
-            end	
+            end 
         end
     end
 
@@ -127,13 +127,303 @@ do
                             message("blob offset=" .. offs .. " len=" .. len)
                             --msg_tree:add(buffer(offs,len),"blob: " .. buffer(offs,4):bytes())
                             msg_tree:add(buffer(offs,len),"blob: ")
-                            if path.str == "meters/5" then
+                            if path.str == "meters/0" then
+                                local length = u2i32(buffer(offs,4):uint())
+                                info = info .. " " .. u2i32(buffer(offs,4):uint())
+                                msg_tree:add(buffer(offs,4),"length: " .. u2i32(buffer(offs,4):uint()))
+                                length = (length - 4) / 4
+                                advance(4)
+                                msg_tree:add(buffer(offs,4),"unknown: " .. u2i32(buffer(offs,4):uint()))
+                                advance(4)
+                                local i=1
+                                local j=1
+                                while i<=32 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"channel input[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=40 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"aux return[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=48 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"st fx return[" .. j .. "][1]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    msg_tree:add(buffer(offs,4),"st fx return[" .. j .. "][2]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+2
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=64 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"bus master[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=70 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"matrix[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                            elseif path.str == "meters/1" then
+                                local length = u2i32(buffer(offs,4):uint())
+                                info = info .. " " .. u2i32(buffer(offs,4):uint())
+                                msg_tree:add(buffer(offs,4),"length: " .. u2i32(buffer(offs,4):uint()))
+                                length = (length - 4) / 4
+                                advance(4)
+                                msg_tree:add(buffer(offs,4),"unknown: " .. u2i32(buffer(offs,4):uint()))
+                                advance(4)
+                                local i=1
+                                local j=1
+                                while i<=32 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"channel input[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=64 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"gate chain reduction[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=96 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"dynamic gain reduction[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                            elseif path.str == "meters/2" then
+                                local length = u2i32(buffer(offs,4):uint())
+                                info = info .. " " .. u2i32(buffer(offs,4):uint())
+                                msg_tree:add(buffer(offs,4),"length: " .. u2i32(buffer(offs,4):uint()))
+                                length = (length - 4) / 4
+                                advance(4)
+                                msg_tree:add(buffer(offs,4),"unknown: " .. u2i32(buffer(offs,4):uint()))
+                                advance(4)
+                                local i=1
+                                local j=1
+                                while i<=16 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"bus master[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=22 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"matrix[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=24 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"main[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=25 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"mono m/c[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=41 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"dynamic gain reduction[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=47 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"matrix dynamic gain reduction[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=48 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"main lr dynamic gain reduction[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=49 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"momo m/c dynamic gain reduction[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                            elseif path.str == "meters/3" then
+                                local length = u2i32(buffer(offs,4):uint())
+                                info = info .. " " .. u2i32(buffer(offs,4):uint())
+                                msg_tree:add(buffer(offs,4),"length: " .. u2i32(buffer(offs,4):uint()))
+                                length = (length - 4) / 4
+                                advance(4)
+                                msg_tree:add(buffer(offs,4),"unknown: " .. u2i32(buffer(offs,4):uint()))
+                                advance(4)
+                                local i=1
+                                local j=1
+                                while i<=6 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"aux send[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=14 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"aux return[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=22 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"st fx return[" .. j .. "][1]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    msg_tree:add(buffer(offs,4),"st fx return[" .. j .. "][2]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+2
+                                    j=j+1
+                                end
+                            elseif path.str == "meters/4" then
+                                local length = u2i32(buffer(offs,4):uint())
+                                info = info .. " " .. u2i32(buffer(offs,4):uint())
+                                msg_tree:add(buffer(offs,4),"length: " .. u2i32(buffer(offs,4):uint()))
+                                length = (length - 4) / 4
+                                advance(4)
+                                msg_tree:add(buffer(offs,4),"unknown: " .. u2i32(buffer(offs,4):uint()))
+                                advance(4)
+                                local i=1
+                                local j=1
+                                while i<=32 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"channel input[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=40 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"aux return[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=56 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"output[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=72 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"p16 ultranet output[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=78 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"aux send[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=80 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"digital aes/ebu out[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                                j=1
+                                while i<=82 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"monitor out[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                            elseif path.str == "meters/5" then
+                                msg_tree:add(buffer(offs,4),"length: " .. u2i32(buffer(offs,4):uint()))
+                                advance(4)
                                 msg_tree:add(buffer(offs,4),"chn_meter_id: " .. u2i32(buffer(offs,4):uint()))
                                 advance(4)
                                 msg_tree:add(buffer(offs,4),"grp_meter_id: " .. u2i32(buffer(offs,4):uint()))
                                 advance(4)
-                                msg_tree:add(buffer(offs,4),"float: " .. buffer(offs,4):float())
+                            elseif path.str == "meters/6" then
+                                msg_tree:add(buffer(offs,4),"length: " .. u2i32(buffer(offs,4):uint()))
                                 advance(4)
+                                msg_tree:add(buffer(offs,4),"chn_meter_id: " .. u2i32(buffer(offs,4):uint()))
+                                advance(4)
+                            elseif path.str == "meters/7" then
+                                local length = u2i32(buffer(offs,4):uint())
+                                info = info .. " " .. u2i32(buffer(offs,4):uint())
+                                msg_tree:add(buffer(offs,4),"length: " .. u2i32(buffer(offs,4):uint()))
+                                length = (length - 4) / 4
+                                advance(4)
+                                msg_tree:add(buffer(offs,4),"unknown: " .. u2i32(buffer(offs,4):uint()))
+                                advance(4)
+                                local i=1
+                                local j=1
+                                while i<=16 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"bus send meter[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                            elseif path.str == "meters/8" then
+                                local length = u2i32(buffer(offs,4):uint())
+                                info = info .. " " .. u2i32(buffer(offs,4):uint())
+                                msg_tree:add(buffer(offs,4),"length: " .. u2i32(buffer(offs,4):uint()))
+                                length = (length - 4) / 4
+                                advance(4)
+                                msg_tree:add(buffer(offs,4),"unknown: " .. u2i32(buffer(offs,4):uint()))
+                                advance(4)
+                                local i=1
+                                local j=1
+                                while i<=6 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"matrix send meter[" .. j .. "]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+1
+                                    j=j+1
+                                end
+                            elseif path.str == "meters/9" then
+                                local length = u2i32(buffer(offs,4):uint())
+                                info = info .. " " .. u2i32(buffer(offs,4):uint())
+                                msg_tree:add(buffer(offs,4),"length: " .. u2i32(buffer(offs,4):uint()))
+                                length = (length - 4) / 4
+                                advance(4)
+                                msg_tree:add(buffer(offs,4),"unknown: " .. u2i32(buffer(offs,4):uint()))
+                                advance(4)
+                                local i=1
+                                local j=1
+                                while i<=32 and i<=length do
+                                    msg_tree:add(buffer(offs,4),"fx   send[" .. j .. "][1]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    msg_tree:add(buffer(offs,4),"fx   send[" .. j .. "][2]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    msg_tree:add(buffer(offs,4),"fx return[" .. j .. "][1]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    msg_tree:add(buffer(offs,4),"fx return[" .. j .. "][2]: " .. buffer(offs,4):float())
+                                    advance(4)
+                                    i=i+4
+                                    j=j+1
+                                end
                             end
                             advance(len)
                         else 

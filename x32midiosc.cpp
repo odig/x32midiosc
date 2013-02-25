@@ -735,7 +735,7 @@ void midiSendPitchBand(midiInfo_t midiInfo[], int midiInterface, int channel,flo
 		if (lockChannel(channelNumber,OSC_LOCK))
 		{
 			//val = f * 0x3fff;
-			val = f * 0x3a7b;
+			val = (uint16_t) (f * 0x3a7b);
 
 			std::vector<unsigned char> message;
 			message.push_back(0xE0+(channel));
@@ -771,7 +771,7 @@ void midiSendPan(midiInfo_t midiInfo[], int midiInterface, int channel,float f)
         int channelNumber = (channel+((midiInterface)*8));
         if (true) //lockChannel(channelNumber,OSC_LOCK))
         {
-            val = (f * 127)+1;
+            val = (uint16_t) ((f * 127)+1);
 
             std::vector<unsigned char> message;
             message.push_back(0xB0);
