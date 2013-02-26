@@ -1,4 +1,7 @@
--- add this to C:\program files\wireshark\plugins\1.8.4\
+-- based on http://gitorious.org/~jabbott42/wireshark-osc/jabbott42s-master
+-- add this to "C:\program files\wireshark\plugins\<wireshark version>\" or simular directory on other OS
+-- GNU General Public License version 3 (GPLv3)
+--
 do
     -- make a convertor for unsigned w-bit integers to corresponding two complement signed integers
     function makeU2I(w)
