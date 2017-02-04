@@ -1,5 +1,8 @@
 # x32midiosc
 Converts midi to OSC to integrate X32 Series in DAWs
+Due to leg of time I provide the source code as is.
+Feel freee to copy and use it without any license.
+Get informed about projects will be great.
 
 # x32midiosc
 
@@ -19,20 +22,20 @@ Just copy the provided binary &quot;x32midiosc&quot; to a location of your choic
 
 ### OSX
 
-- --Open a terminal on OSX.
-- --Change directory to the installation directory using &quot;cd _pathtox32midioscdir_&quot;
-- --Start the application by &quot;./x32midiosc _ownport x32port x32ipaddress_ &quot;
+- Open a terminal on OSX.
+- Change directory to the installation directory using &quot;cd _pathtox32midioscdir_&quot;
+- Start the application by &quot;./x32midiosc _ownport x32port x32ipaddress_ &quot;
 Example: ./x32midosc 10000 10023 192.168.1.2
-- --Move a fader on X32 and see if messages running trough the debug screen.
-- --If nothing happens. Check the Addresses and the firewall settings.
+- Move a fader on X32 and see if messages running trough the debug screen.
+- If nothing happens. Check the Addresses and the firewall settings.
 
 ### Windows
 
-- --Make sure you have MIDI port Mapper like LoopBe30 with at least 12 Ports
-- --Open a DOS Box (the black screen) in Windows.
-- --Change directory to the directory where you extracted the ZIP file using
+- Make sure you have MIDI port Mapper like LoopBe30 with at least 12 Ports
+- Open a DOS Box (the black screen) in Windows.
+- Change directory to the directory where you extracted the ZIP file using
 &quot;cd _pathtox32midioscdir_&quot;
-- --Get help by typing:
+- Get help by typing:
  &quot;x32midiosc –help&quot;
 
 x32midiosc Version 0.02 help
