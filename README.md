@@ -1,8 +1,10 @@
 # x32midiosc
 Converts midi to OSC to integrate X32 Series in DAWs
 Due to leg of time I provide the source code as is.
-Feel freee to copy and use it without any license.
+Feel free to copy and use it without any license.
 Get informed about projects will be great.
+
+last compiled version 0.2 is available at: http://x32midiosc.gido.info
 
 # x32midiosc
 
